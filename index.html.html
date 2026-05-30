@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Emirates TMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--gold:#DAA520;--gold2:#B8860B;--sid:#1a1a1a;--sid2:#222;--sidb:#2a2a2a;--sidt:#ccc;--sidt2:#777;--bg:#fff;--bg2:#f8f7f5;--bg3:#f0eee9;--bdr:#e0ddd5;--bdr2:#c8c4bb;--tx:#1a1a1a;--tx2:#555;--tx3:#999;--fn:'Barlow',sans-serif;--fnc:'Barlow Condensed',sans-serif}
+body{font-family:var(--fn);background:var(--bg2);color:var(--tx);font-size:13px;min-height:100vh}
+.app{display:flex;min-height:100vh}
+.sb{width:200px;background:var(--sid);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.topbar{background:var(--bg);border-bottom:1px solid var(--bdr);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:8px}
+.pg{flex:1;overflow-y:auto;padding:14px}
+.sb-logo{padding:14px;border-bottom:1px solid var(--sidb)}
+.sb-logo img{width:36px;height:36px;object-fit:contain;border-radius:5px}
+.sb-co{font-family:var(--fnc);font-size:10px;font-weight:700;color:#f5d06b;letter-spacing:1px;text-transform:uppercase;margin-top:6px;line-height:1.3}
+.sb-sub{font-size:9px;color:var(--sidt2);letter-spacing:.5px;text-transform:uppercase}
+.sb-nav{flex:1;padding:6px 0}
+.sb-sec{padding:6px 12px 2px;font-size:9px;color:var(--sidt2);letter-spacing:1.5px;text-transform:uppercase;font-weight:600}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 12px;cursor:pointer;color:var(--sidt);font-size:11px;border-left:3px solid transparent;transition:all .12s}
+.sb-item:hover{background:var(--sid2);color:#fff}
+.sb-item.on{background:rgba(218,165,32,.15);color:#f5d06b;border-left-color:var(--gold)}
+.sb-item i{width:13px;text-align:center;font-size:12px}
+.sb-foot{padding:10px 12px;border-top:1px solid var(--sidb);font-size:10px;color:var(--sidt2)}
+.card{background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:14px}
+.csm{background:var(--bg2);border:1px solid var(--bdr);border-radius:5px;padding:9px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:600px){.g4{grid-template-columns:1fr 1fr}.g3{grid-template-columns:1fr 1fr}.g2{grid-template-columns:1fr}.sb{display:none}}
+.sc{background:var(--bg);border:1px solid var(--bdr);border-radius:7px;padding:11px;display:flex;align-items:center;gap:9px}
+.si{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:16px;flex-shrink:0;font-size:15px;justify-content:center}
+.si-g{background:rgba(184,134,11,.12);color:var(--gold)}.si-b{background:rgba(37,99,235,.1);color:#2563eb}
+.si-gr{background:rgba(22,163,74,.1);color:#16a34a}.si-r{background:rgba(220,38,38,.1);color:#dc2626}
+.sl{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:1px}
+.sv{font-family:var(--fnc);font-size:20px;font-weight:700;line-height:1}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+table{width:100%;border-collapse:collapse;font-size:11px}
+thead tr{background:var(--bg3)}
+th{padding:7px 9px;text-align:left;font-family:var(--fnc);font-size:9px;font-weight:600;color:var(--tx3);letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--bdr);white-space:nowrap}
+td{padding:7px 9px;border-bottom:1px solid var(--bdr);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg3)}
+.badge{display:inline-block;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:500}
+.bg{background:rgba(184,134,11,.12);color:#7a5800;border:1px solid rgba(184,134,11,.3)}
+.bb{background:rgba(37,99,235,.1);color:#1d4ed8;border:1px solid rgba(37,99,235,.25)}
+.bgr{background:rgba(22,163,74,.1);color:#15803d;border:1px solid rgba(22,163,74,.25)}
+.br{background:rgba(220,38,38,.1);color:#b91c1c;border:1px solid rgba(220,38,38,.25)}
+.bgy{background:var(--bg3);color:var(--tx2);border:1px solid var(--bdr)}
+.bp{background:rgba(124,58,237,.1);color:#6d28d9;border:1px solid rgba(124,58,237,.25)}
+.bcy{background:rgba(6,182,212,.1);color:#0e7490;border:1px solid rgba(6,182,212,.25)}
+.bor{background:rgba(234,88,12,.1);color:#c2410c;border:1px solid rgba(234,88,12,.25)}
+.btn{display:inline-flex;align-items:center;gap:4px;padding:6px 10px;border-radius:5px;border:none;cursor:pointer;font-family:var(--fn);font-size:11px;font-weight:500;transition:all .12s;white-space:nowrap}
+.b-gold{background:var(--gold);color:#fff;font-weight:600}.b-gold:hover{background:var(--gold2)}
+.b-out{background:transparent;border:1px solid var(--bdr2);color:var(--tx2)}.b-out:hover{border-color:var(--gold);color:var(--gold)}
+.b-gr{background:#16a34a;color:#fff}.b-bl{background:#2563eb;color:#fff}
+.b-wa{background:#25d366;color:#fff}.b-rd{background:#dc2626;color:#fff}
+.b-sm{padding:3px 8px;font-size:10px}
+.bi{padding:3px;width:24px;height:24px;display:inline-flex;align-items:center;justify-content:center;border-radius:4px;border:1px solid var(--bdr);background:transparent;cursor:pointer;color:var(--tx2);transition:all .12s;font-size:10px}
+.bi:hover{border-color:var(--gold);color:var(--gold)}.bi.d:hover{border-color:#dc2626;color:#dc2626}
+.fg{margin-bottom:9px}
+.fl{display:block;font-size:9px;color:var(--tx3);margin-bottom:3px;font-weight:500;text-transform:uppercase;letter-spacing:.5px}
+.fc{width:100%;background:var(--bg);border:1px solid var(--bdr2);border-radius:5px;padding:6px 9px;color:var(--tx);font-family:var(--fn);font-size:12px;outline:none;transition:border-color .12s}
+.fc:focus{border-color:var(--gold)}.fc option{background:var(--bg)}
+textarea.fc{resize:vertical;min-height:55px}
+.sr{position:relative}.sr i{position:absolute;left:7px;top:50%;transform:translateY(-50%);color:var(--tx3);font-size:10px}
+.sr input{padding-left:25px}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;display:flex;align-items:center;justify-content:center;padding:10px}
+.modal{background:var(--bg);border:1px solid var(--bdr2);border-radius:9px;width:100%;max-width:500px;max-height:93vh;overflow-y:auto}
+.mlg{max-width:660px}.mxl{max-width:800px}
+.mh{padding:12px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg);z-index:1}
+.mt{font-family:var(--fnc);font-size:14px;font-weight:600}
+.mb{padding:14px}
+.mf{padding:9px 14px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:6px;background:var(--bg2)}
+.sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.stit{font-family:var(--fnc);font-size:13px;font-weight:600}
+.flex{display:flex}.ic{align-items:center}.g6{gap:6px}.g8{gap:8px}
+.mb10{margin-bottom:10px}.fw6{font-weight:600}.fn2{font-family:var(--fnc)}
+.ts{font-size:11px}.tx2{font-size:10px}.tm{color:var(--tx2)}.td{color:var(--tx3)}.wf{width:100%}
+.ini{width:24px;height:24px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;flex-shrink:0;background:rgba(184,134,11,.12);color:var(--gold)}
+.ai{background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);color:#1e40af;padding:7px 10px;border-radius:5px;font-size:10px;margin-bottom:8px}
+.aw{background:rgba(234,88,12,.08);border:1px solid rgba(234,88,12,.2);color:#c2410c;padding:7px 10px;border-radius:5px;font-size:10px;margin-bottom:8px}
+.aok{background:rgba(22,163,74,.08);border:1px solid rgba(22,163,74,.2);color:#15803d;padding:7px 10px;border-radius:5px;font-size:10px;margin-bottom:8px}
+.lw{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#111,#222);padding:14px}
+.lc{background:var(--bg);border-radius:10px;padding:24px;width:100%;max-width:340px;box-shadow:0 20px 60px rgba(0,0,0,.4)}
+.cd{width:7px;height:7px;border-radius:50%;flex-shrink:0;animation:pulse 2s infinite}
+.cd.on{background:#22c55e}.cd.off{background:#f59e0b}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.qok{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;background:rgba(22,163,74,.1);color:#15803d;border:1px solid rgba(22,163,74,.25)}
+.qlow{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;background:rgba(234,88,12,.1);color:#c2410c;border:1px solid rgba(234,88,12,.25)}
+.qno{display:inline-flex;align-items:center;padding:2px 6px;border-radius:3px;font-size:10px;font-weight:600;background:rgba(220,38,38,.1);color:#b91c1c;border:1px solid rgba(220,38,38,.25)}
+.tabs{display:flex;gap:2px;background:var(--bg3);border-radius:5px;padding:2px;margin-bottom:12px}
+.tab{flex:1;padding:5px 7px;border-radius:3px;cursor:pointer;font-size:10px;font-weight:500;text-align:center;color:var(--tx2);transition:all .12s}
+.tab.on{background:var(--bg);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.cbl{background:var(--bg3);border:1px solid var(--bdr2);border-radius:5px;max-height:180px;overflow-y:auto;padding:3px}
+.cbi{display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;border-radius:3px;transition:background .1s;font-size:11px}
+.cbi:hover{background:rgba(0,0,0,.04)}
+.cbi input{accent-color:var(--gold);width:12px;height:12px;cursor:pointer;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="notif" style="position:fixed;top:12px;right:12px;z-index:9999;padding:9px 13px;border-radius:7px;color:#fff;font-size:11px;display:none;max-width:280px;box-shadow:0 4px 12px rgba(0,0,0,.25)"></div>
+
+<script>
+// ── SUPABASE ──
+let SURL=localStorage.getItem('ep_surl')||'';
+let SKEY=localStorage.getItem('ep_skey')||'';
+let CC=false;
+
+async function sQ(path,method='GET',body=null){
+  if(!SURL||!SKEY)throw new Error('Not configured');
+  const h={'Content-Type':'application/json','apikey':SKEY,'Authorization':'Bearer '+SKEY};
+  if(method==='POST')h['Prefer']='resolution=merge-duplicates,return=representation';
+  const r=await fetch(SURL+path,{method,headers:h,body:body?JSON.stringify(body):null});
+  if(!r.ok){const e=await r.text();throw new Error(e)}
+  const t=await r.text();return t?JSON.parse(t):[];
+}
+function toSn(o){const r={};Object.keys(o).forEach(k=>{const nk=k.replace(/([A-Z])/g,'_$1').toLowerCase();let v=o[k];if(Array.isArray(v)||(typeof v==='object'&&v!==null))v=JSON.stringify(v);r[nk]=v});return r}
+function toCm(o){const r={};Object.keys(o).forEach(k=>{const nk=k.replace(/_([a-z])/g,(_,c)=>c.toUpperCase());let v=o[k];if(typeof v==='string'&&(v.startsWith('[')||v.startsWith('{'))){try{v=JSON.parse(v)}catch(e){}}r[nk]=v});return r}
+async function dbUp(tbl,rows){if(!CC||!rows||!rows.length)return;try{await sQ('/'+tbl+'?on_conflict=id','POST',rows.map(toSn))}catch(e){console.warn(tbl,e.message)}}
+async function dbDel(tbl,id){if(!CC)return;try{await sQ('/'+tbl+'?id=eq.'+id,'DELETE')}catch(e){console.warn(e)}}
+async function dbGet(tbl){try{const r=await sQ('/'+tbl+'?limit=2000&order=created_at.asc.nullslast');return r.map(toCm)}catch(e){console.warn(tbl,e.message);return null}}
+async function testC(){try{await sQ('/tools?limit=1');CC=true;return true}catch(e){CC=false;return false}}
+async function syncAll(){
+  showN('Syncing to cloud...','info');
+  try{for(const t of['tools','staff','supervisors','assignments','history','users','zones']){if((DB[t]||[]).length>0)await dbUp(t,DB[t])}localStorage.setItem('ep_ls',Date.now()+'');showN('✅ Synced!');render()}
+  catch(e){showN('Sync error: '+e.message,'error')}
+}
+async function pullAll(){
+  showN('Loading from cloud...','info');
+  for(const t of['tools','staff','supervisors','assignments','history','users','zones']){const d=await dbGet(t);if(d!==null&&d.length>0)DB[t]=d}
+  ensureAdmin();if(!DB.zones||!DB.zones.length)DB.zones=defZones();
+  saveDB();showN('✅ Loaded!');render();
+}
+
+// ── CONSTANTS ──
+const CONDITIONS=['Good','Fair','Damaged','Under Repair','Renew Required','Refurbished','Retired'];
+const COND_BADGE={
+  'Good':'bgr','Fair':'bg','Damaged':'br','Under Repair':'bor',
+  'Renew Required':'br','Refurbished':'bcy','Retired':'bgy'
+};
+const TOOL_LIST=["GLASS CATCHER 3CUP","WOODEN HANDSAW","MARBLE CUTTER STANLEY","HAND PLANER","PIPE WRENCH 14\"","PIPE WRENCH 18\"","BOX SPANNER","HEATING GUN STANLEY","HILTY TIGHTER","LADDER 6STEP","PPR MACHINE","PAINTING STICK MEDIUM 3M","SCAFFOLDING (WHEEL 4PCS)","EXTENSION CABLE REEL-50M","AIR BLOWER STANLEY","VACUUM PUMP","HEATING GUN CHINA","NITROGEN CYLINDER 10L","NITROGEN GAUGE","LADDER 6STEP YELLOW","HOSE 50MTR","HOSE NOZZLE","HOSE CONNECTOR","HOSE CLIP","1HP VACUUM PUMP","DRILL MACHINE STANLEY","WELDING TORCH WITH HOSE","PRESSURE WASHER","7 STEP LADDER","8 STEP LADDER","MANHOLE KEY SET","AC SERVICE PUMP","HOSE ASSEMBLY PIPE FOR CLEANING","SPECIAL NOZZLE KRACHER","FLARING TOOL SET","JIGSAW MACHINE","Adjustable Spanner 8\"","Adjustable Spanner 12\"","Pipe Wrench","File","Clamp Meter","Hammer","Wire Stripper","410 Manifold Gauge Set","Nose Plier","Hack Saw Frame","Measurement Tape","Pipe Cutter Small","Pipe Cutter Big","Cutting Plier","Ratchet Spanner Set","Tester","Allen Key Set","Hacksaw Blade","Small Screw Driver Star","Brazing Gun Nozzle with Cable","Screw Driver Star Long","Nut Driver 8\"","Nut Driver 7\"","Nut Driver 1/4\"","Fins Straighter","Screw Driver Long Flat","Chisel","J-Tech Bag","Stanley Bag","Screw Driver Small Flat","18\" Stanley Trolley Bag","R22 Charging Long Line 150cm","R22 Manifold Gauge Full Set","12\" Long Flat Screw Driver UKEN","Thermometer Pen Type","6\" Star Screw Driver UKEN"];
+const ALLP=['view_tech','manage_tech','view_tools','manage_tools','issue_tools','return_tools','view_history','export_data','view_sup','manage_zones'];
+const PL={view_tech:'View Technicians',manage_tech:'Manage Technicians',view_tools:'View Tools',manage_tools:'Manage Tools',issue_tools:'Issue Tools',return_tools:'Return Tools',view_history:'View History',export_data:'Export Data',view_sup:'View Supervisors',manage_zones:'Manage Zones'};
+const ROLES=['Admin','Supervisor','Storekeeper','Viewer'];
+const RC={Admin:'bg',Supervisor:'bb',Storekeeper:'bp',Viewer:'bgy'};
+
+// ── DB ──
+let DB={tools:[],staff:[],supervisors:[],assignments:[],history:[],users:[],zones:[],backups:[]};
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).substr(2,5);
+const defZones=()=>['Zone 1','Zone 2','Zone 3','Zone 4','Zone 5'].map(n=>({id:uid(),name:n,createdAt:Date.now()}));
+function saveDB(){try{localStorage.setItem('ep_tms_v8',JSON.stringify(DB))}catch(e){}}
+function ensureAdmin(){
+  if(!DB.users)DB.users=[];
+  if(!DB.users.find(u=>u.username==='admin'))
+    DB.users.unshift({id:'admin-root',username:'admin',password:'admin123',role:'Admin',name:'Administrator',permissions:ALLP,createdAt:Date.now()});
+}
+function loadDB(){
+  try{
+    const r=localStorage.getItem('ep_tms_v8')||localStorage.getItem('ep_tms_v7');
+    if(r){DB=JSON.parse(r);}else{initDB();return}
+    ensureAdmin();
+    if(!DB.zones||!DB.zones.length)DB.zones=defZones();
+    ['tools','staff','supervisors','assignments','history','backups'].forEach(k=>{if(!DB[k])DB[k]=[]});
+  }catch(e){initDB()}
+}
+function initDB(){
+  DB.zones=defZones();
+  DB.tools=TOOL_LIST.map(n=>({id:uid(),name:n,condition:'Good',quantity:1,notes:'',createdAt:Date.now()}));
+  DB.supervisors=[{id:uid(),name:'Ahmed Al Rashid',zone:'Zone 1',phone:'050-1234567',createdAt:Date.now()}];
+  DB.staff=[{id:uid(),name:'Rajan Kumar',zone:'Zone 1',supervisorId:DB.supervisors[0].id,createdAt:Date.now()}];
+  DB.users=[{id:'admin-root',username:'admin',password:'admin123',role:'Admin',name:'Administrator',permissions:ALLP,createdAt:Date.now()}];
+  DB.assignments=[];DB.history=[];DB.backups=[];saveDB();
+}
+
+// ── STATE ──
+let S={pg:'dashboard',modal:null,md:{},srch:{tools:'',staff:'',sups:'',is:'',it:''},tids:[],user:null,tab:'users'};
+
+// ── HELPERS ──
+const ini=n=>(n||'?').split(' ').map(w=>w[0]).join('').toUpperCase().substr(0,2);
+const fd=ts=>ts?new Date(ts).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+const fdt=ts=>ts?fd(ts)+' '+new Date(ts).toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}):'—';
+const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function zb(z){const cols=['bb','bgr','bg','bp','br','bgy'];const i=(DB.zones||[]).findIndex(x=>x.name===z);return`<span class="badge ${cols[Math.max(0,i)%cols.length]}">${z||'—'}</span>`}
+function condBadge(c){return`<span class="badge ${COND_BADGE[c]||'bgy'}">${c||'Good'}</span>`}
+const gT=id=>DB.tools.find(t=>t.id===id);
+const gS=id=>DB.staff.find(s=>s.id===id);
+const gSup=id=>DB.supervisors.find(s=>s.id===id);
+const stTools=id=>DB.assignments.filter(a=>a.staffId===id&&a.status==='Issued');
+const supStaff=id=>DB.staff.filter(s=>s.supervisorId===id);
+const supTools=id=>{const ids=supStaff(id).map(s=>s.id);return DB.assignments.filter(a=>ids.includes(a.staffId)&&a.status==='Issued')};
+const hp=p=>S.user?.role==='Admin'||(S.user?.permissions||[]).includes(p);
+const zns=()=>(DB.zones||[]).map(z=>z.name);
+const avQ=tid=>{const t=gT(tid);if(!t)return 0;return(t.quantity||1)-DB.assignments.filter(a=>a.toolId===tid&&a.status==='Issued').length};
+
+function showN(msg,type='success'){const el=document.getElementById('notif');if(!el)return;el.textContent=msg;el.style.background={error:'#dc2626',info:'#2563eb',warn:'#d97706',success:'#16a34a'}[type]||'#16a34a';el.style.display='block';clearTimeout(window._nt);window._nt=setTimeout(()=>el.style.display='none',4000)}
+
+// ── RENDER ──
+function render(){
+  const root=document.getElementById('root');
+  if(!S.user){root.innerHTML=rLogin();return}
+  root.innerHTML=`<div class="app">${rSB()}<div class="main">${rTop()}<div class="pg">${rPg()}</div></div></div>${S.modal?rModal():''}`;
+  document.querySelectorAll('.sb-item[data-p]').forEach(el=>el.addEventListener('click',()=>{S.pg=el.dataset.p;S.modal=null;render()}));
+}
+function rp(){const el=document.querySelector('.pg');if(el)el.innerHTML=rPg()}
+
+function rLogin(){
+  return`<div class="lw"><div class="lc">
+    <div style="text-align:center;margin-bottom:18px">
+      <img src="/mnt/user-data/uploads/images.jpg" style="width:48px;height:48px;object-fit:contain;border-radius:7px" onerror="this.style.display='none'"/>
+      <div style="font-family:var(--fnc);font-size:18px;font-weight:700;color:var(--gold);margin-top:7px;letter-spacing:1px">Emirates Properties</div>
+      <div style="font-size:10px;color:var(--tx3)">Facility Management LLC — TMS</div>
+    </div>
+    ${CC?`<div class="aok" style="text-align:center;margin-bottom:10px"><i class="fas fa-cloud"></i> Cloud Connected</div>`:''}
+    <div class="fg"><label class="fl">Username</label><input class="fc" id="lg-u" placeholder="Enter username" onkeydown="if(event.key==='Enter')login()"/></div>
+    <div class="fg"><label class="fl">Password</label><input class="fc" id="lg-p" type="password" placeholder="Enter password" onkeydown="if(event.key==='Enter')login()"/></div>
+    <button class="btn b-gold wf" style="justify-content:center;padding:9px;margin-top:5px;font-size:13px" onclick="login()"><i class="fas fa-sign-in-alt"></i> Login</button>
+  </div></div>`;
+}
+
+function rSB(){
+  const isA=S.user?.role==='Admin';
+  const nav=[
+    {id:'dashboard',ic:'fa-gauge',lb:'Dashboard',al:1},
+    {id:'tools',ic:'fa-toolbox',lb:'Tools',p:'view_tools'},
+    {id:'tech',ic:'fa-users',lb:'Technicians',p:'view_tech'},
+    {id:'sups',ic:'fa-user-tie',lb:'Supervisors',p:'view_sup'},
+    {id:'zones',ic:'fa-map-location-dot',lb:'Zones',p:'manage_zones'},
+    {id:'assign',ic:'fa-handshake',lb:'Assignments',p:'issue_tools'},
+    {id:'hist',ic:'fa-clock-rotate-left',lb:'History',p:'view_history'},
+    {id:'search',ic:'fa-magnifying-glass',lb:'Search',al:1},
+    {id:'export',ic:'fa-file-excel',lb:'Export',p:'export_data'},
+    {id:'admin',ic:'fa-shield-halved',lb:'Admin',adm:1}
+  ];
+  const items=nav.filter(n=>n.al||(n.adm&&isA)||(!n.adm&&hp(n.p)));
+  const ls=localStorage.getItem('ep_ls');
+  return`<div class="sb">
+    <div class="sb-logo">
+      <img src="/mnt/user-data/uploads/images.jpg" style="width:36px;height:36px;object-fit:contain;border-radius:5px" onerror="this.style.display='none'"/>
+      <div class="sb-co">Emirates Properties</div><div class="sb-sub">FM LLC</div>
+    </div>
+    <nav class="sb-nav"><div class="sb-sec">Menu</div>
+      ${items.map(n=>`<div class="sb-item${S.pg===n.id?' on':''}" data-p="${n.id}"><i class="fas ${n.ic}"></i><span>${n.lb}</span></div>`).join('')}
+    </nav>
+    <div class="sb-foot">
+      <div style="display:flex;align-items:center;gap:4px;margin-bottom:3px"><div class="cd ${CC?'on':'off'}"></div><span>${CC?'Cloud Connected':'Local Mode'}</span></div>
+      ${ls&&CC?`<div style="font-size:8px">Synced: ${fd(parseInt(ls))}</div>`:''}
+      <div style="font-size:8px;margin-top:2px">${esc(S.user?.name)} <span class="badge ${RC[S.user?.role]||'bgy'}" style="font-size:8px">${S.user?.role}</span></div>
+      ${CC?`<button class="btn b-sm" style="margin-top:5px;width:100%;justify-content:center;background:rgba(22,163,74,.15);border:1px solid rgba(22,163,74,.3);color:#16a34a" onclick="syncAll()"><i class="fas fa-sync"></i> Sync</button>`:''}
+      <button class="btn b-sm" style="margin-top:4px;background:rgba(220,38,38,.15);border:1px solid rgba(220,38,38,.3);color:#f87171;width:100%;justify-content:center" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</button>
+    </div>
+  </div>`;
+}
+
+function rTop(){
+  const tts={dashboard:'Dashboard',tools:'Tools',tech:'Technicians',sups:'Supervisors',zones:'Zones',assign:'Assignments',hist:'History',search:'Search',export:'Export',admin:'Admin Panel'};
+  return`<div class="topbar">
+    <div><div style="font-family:var(--fnc);font-size:15px;font-weight:700">${tts[S.pg]||''}</div><div style="font-size:9px;color:var(--tx3)">${new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})}</div></div>
+    <div class="flex ic g6">
+      <span class="badge ${CC?'bgr':'bgy'}" style="font-size:9px"><i class="fas ${CC?'fa-cloud':'fa-database'}"></i> ${CC?'Cloud Active':'Local'}</span>
+      ${CC?`<button class="btn b-sm b-gr" onclick="syncAll()"><i class="fas fa-sync"></i> Sync</button>`:`<button class="btn b-sm b-bl" onclick="S.pg='admin';S.tab='cloud';render()"><i class="fas fa-cloud"></i> Connect Cloud</button>`}
+    </div>
+  </div>`;
+}
+
+function rPg(){
+  switch(S.pg){
+    case 'dashboard':return pgDash();case 'tools':return pgTools();case 'tech':return pgTech();
+    case 'sups':return pgSups();case 'zones':return pgZones();case 'assign':return pgAssign();
+    case 'hist':return pgHist();case 'search':return pgSearch();case 'export':return pgExport();
+    case 'admin':return pgAdmin();default:return pgDash();
+  }
+}
+
+function pgDash(){
+  const tot=DB.tools.reduce((s,t)=>s+(t.quantity||1),0);
+  const iss=DB.assignments.filter(a=>a.status==='Issued').length;
+  const rec=[...DB.history].sort((a,b)=>b.timestamp-a.timestamp).slice(0,6);
+  const zones=zns();
+  return`<div class="g4 mb10">
+    <div class="sc"><div class="si si-g"><i class="fas fa-toolbox"></i></div><div><div class="sl">Tools</div><div class="sv">${DB.tools.length}</div><div style="font-size:9px;color:var(--tx3)">${tot} units</div></div></div>
+    <div class="sc"><div class="si si-b"><i class="fas fa-users"></i></div><div><div class="sl">Technicians</div><div class="sv">${DB.staff.length}</div></div></div>
+    <div class="sc"><div class="si si-gr"><i class="fas fa-check-circle"></i></div><div><div class="sl">Available</div><div class="sv">${tot-iss}</div></div></div>
+    <div class="sc"><div class="si si-r"><i class="fas fa-wrench"></i></div><div><div class="sl">Issued</div><div class="sv">${iss}</div></div></div>
+  </div>
+  <div class="g2 mb10" style="gap:10px">
+    <div class="card"><div class="sh mb10"><div class="stit"><i class="fas fa-map" style="color:var(--gold)"></i> Zones</div></div>
+    <table><thead><tr><th>Zone</th><th>Techs</th><th>Tools</th><th>Supervisor</th></tr></thead><tbody>
+    ${zones.map(z=>{const st=DB.staff.filter(s=>s.zone===z);const ids=st.map(s=>s.id);const tc=DB.assignments.filter(a=>ids.includes(a.staffId)&&a.status==='Issued').length;const sup=DB.supervisors.find(s=>s.zone===z);return`<tr><td>${zb(z)}</td><td><span class="badge bb">${st.length}</span></td><td><span class="badge bg">${tc}</span></td><td class="tm ts">${sup?esc(sup.name):'—'}</td></tr>`}).join('')}
+    </tbody></table></div>
+    <div class="card"><div class="sh mb10"><div class="stit"><i class="fas fa-clock-rotate-left" style="color:var(--gold)"></i> Recent Activity</div></div>
+    ${rec.length===0?`<div class="td" style="text-align:center;padding:16px">No activity</div>`:
+    `<div style="display:flex;flex-direction:column;gap:4px">${rec.map(h=>{const st=gS(h.staffId);const tool=gT(h.toolId);return`<div style="display:flex;align-items:center;gap:6px;padding:4px;background:var(--bg2);border-radius:4px"><div class="si ${h.action==='Issued'?'si-gr':'si-b'}" style="width:22px;height:22px;border-radius:4px;font-size:9px"><i class="fas ${h.action==='Issued'?'fa-arrow-right':'fa-arrow-left'}"></i></div><div style="flex:1;min-width:0"><div class="ts fw6" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${tool?esc(tool.name):'?'} <span class="badge ${h.action==='Issued'?'bgr':'bb'}" style="font-size:9px">${h.action}</span></div><div class="tx2 td">${st?esc(st.name):'?'}${h.issuedBy?' · '+esc(h.issuedBy):''}</div></div></div>`}).join('')}</div>`}
+    </div>
+  </div>
+  <div class="card"><div class="sh mb10"><div class="stit"><i class="fas fa-user-tie" style="color:var(--gold)"></i> Supervisors</div></div>
+  <div class="tw"><table><thead><tr><th>Name</th><th>Zone</th><th>Phone</th><th>Techs</th><th>Tools</th><th></th></tr></thead><tbody>
+  ${DB.supervisors.map(s=>`<tr><td><div class="flex ic g8"><div class="ini">${ini(s.name)}</div><span class="fw6">${esc(s.name)}</span></div></td><td>${zb(s.zone)}</td><td class="tm ts">${s.phone}</td><td><span class="badge bb">${supStaff(s.id).length}</span></td><td><span class="badge bg">${supTools(s.id).length}</span></td><td><button class="bi" onclick="openM('vSup','${s.id}')"><i class="fas fa-eye"></i></button></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+
+function pgTools(){
+  const q=S.srch.tools.toLowerCase();
+  const tools=DB.tools.filter(t=>!q||t.name.toLowerCase().includes(q));
+  return`<div class="sh">
+    <div class="sr" style="flex:1"><i class="fas fa-magnifying-glass"></i><input class="fc" placeholder="Search tools by name..." value="${esc(S.srch.tools)}" oninput="S.srch.tools=this.value;rp()"/></div>
+    <div class="flex g6">${hp('export_data')?`<button class="btn b-sm b-out" onclick="exExcel('tools')"><i class="fas fa-file-excel"></i></button>`:''} ${hp('manage_tools')?`<button class="btn b-gold b-sm" onclick="openM('aTool')"><i class="fas fa-plus"></i> Add Tool</button>`:''}</div>
+  </div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Tool Name</th><th>Qty</th><th>Available</th><th>Issued</th><th>Condition</th><th>Actions</th></tr></thead><tbody>
+  ${tools.length===0?`<tr><td colspan="6" style="text-align:center;color:var(--tx3);padding:24px">No tools found</td></tr>`:
+  tools.map(t=>{const iss=DB.assignments.filter(a=>a.toolId===t.id&&a.status==='Issued').length;const av=(t.quantity||1)-iss;return`<tr>
+    <td class="fw6">${esc(t.name)}</td>
+    <td><span class="badge bb">${t.quantity||1}</span></td>
+    <td><span class="${av<=0?'qno':av<=2?'qlow':'qok'}">${av<=0?'NONE':av}</span></td>
+    <td>${iss>0?`<span class="badge bg">${iss}x</span>`:`<span class="badge bgy">0</span>`}</td>
+    <td>${condBadge(t.condition||'Good')}</td>
+    <td><div class="flex g6">
+      <button class="bi" onclick="openM('vTool','${t.id}')"><i class="fas fa-eye"></i></button>
+      ${hp('manage_tools')?`<button class="bi" title="Add Stock" onclick="openM('aqty','${t.id}')"><i class="fas fa-plus-circle"></i></button><button class="bi" onclick="openM('eTool','${t.id}')"><i class="fas fa-pen"></i></button><button class="bi d" onclick="dTool('${t.id}')"><i class="fas fa-trash"></i></button>`:''}
+    </div></td>
+  </tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+
+function pgTech(){
+  const q=S.srch.staff.toLowerCase();
+  const staff=DB.staff.filter(s=>!q||s.name.toLowerCase().includes(q)||s.zone.toLowerCase().includes(q));
+  return`<div class="sh">
+    <div class="sr" style="flex:1"><i class="fas fa-magnifying-glass"></i><input class="fc" placeholder="Search technicians..." value="${esc(S.srch.staff)}" oninput="S.srch.staff=this.value;rp()"/></div>
+    <div class="flex g6">${hp('export_data')?`<button class="btn b-sm b-out" onclick="exExcel('staff')"><i class="fas fa-file-excel"></i></button>`:''} ${hp('manage_tech')?`<button class="btn b-gold b-sm" onclick="openM('aTech')"><i class="fas fa-plus"></i> Add Technician</button>`:''}</div>
+  </div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Technician</th><th>Zone</th><th>Supervisor</th><th>Tools</th><th>Actions</th></tr></thead><tbody>
+  ${staff.length===0?`<tr><td colspan="5" style="text-align:center;color:var(--tx3);padding:24px">No technicians</td></tr>`:
+  staff.map(s=>{const sup=gSup(s.supervisorId);const tc=stTools(s.id).length;return`<tr>
+    <td><div class="flex ic g8"><div class="ini">${ini(s.name)}</div><span class="fw6">${esc(s.name)}</span></div></td>
+    <td>${zb(s.zone)}</td><td class="tm ts">${sup?esc(sup.name):'—'}</td>
+    <td>${tc>0?`<span class="badge bg">${tc}</span>`:`<span class="badge bgy">0</span>`}</td>
+    <td><div class="flex g6">
+      <button class="btn b-out b-sm" onclick="openM('vTech','${s.id}')"><i class="fas fa-eye"></i></button>
+      <button class="bi" onclick="printS('${s.id}')"><i class="fas fa-print"></i></button>
+      <button class="btn b-wa b-sm" onclick="shareWA('${s.id}')"><i class="fab fa-whatsapp"></i></button>
+      <button class="bi" onclick="openM('leaveRet','${s.id}')"><i class="fas fa-door-open"></i></button>
+      ${hp('manage_tech')?`<button class="bi" onclick="openM('eTech','${s.id}')"><i class="fas fa-pen"></i></button><button class="bi d" onclick="dTech('${s.id}')"><i class="fas fa-trash"></i></button>`:''}
+    </div></td>
+  </tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+
+function pgSups(){
+  const q=S.srch.sups.toLowerCase();
+  const sups=DB.supervisors.filter(s=>!q||s.name.toLowerCase().includes(q)||s.zone.toLowerCase().includes(q));
+  return`<div class="sh">
+    <div class="sr" style="flex:1"><i class="fas fa-magnifying-glass"></i><input class="fc" placeholder="Search..." value="${esc(S.srch.sups)}" oninput="S.srch.sups=this.value;rp()"/></div>
+    ${S.user?.role==='Admin'?`<button class="btn b-gold b-sm" onclick="openM('aSup')"><i class="fas fa-plus"></i> Add</button>`:''}
+  </div>
+  <div class="g2" style="gap:10px">${sups.map(s=>{const sl=supStaff(s.id);const tc=supTools(s.id).length;return`<div class="card"><div class="flex ic g8 mb10"><div class="ini" style="width:36px;height:36px;font-size:12px;border-radius:6px">${ini(s.name)}</div><div style="flex:1"><div class="fw6 ts">${esc(s.name)}</div><div class="tm tx2"><i class="fas fa-phone" style="font-size:9px"></i> ${s.phone}</div></div>${zb(s.zone)}</div>
+  <div class="g2 mb10" style="gap:6px"><div class="csm" style="text-align:center"><div class="tx2 td">Techs</div><div class="fn2 fw6" style="font-size:18px">${sl.length}</div></div><div class="csm" style="text-align:center"><div class="tx2 td">Tools</div><div class="fn2 fw6" style="font-size:18px;color:var(--gold)">${tc}</div></div></div>
+  <div class="flex g6"><button class="btn b-out b-sm wf" onclick="openM('vSup','${s.id}')"><i class="fas fa-eye"></i> Details</button>
+  <button class="btn b-wa b-sm" onclick="shareSupLink('${s.id}')"><i class="fab fa-whatsapp"></i></button>
+  ${S.user?.role==='Admin'?`<button class="bi" onclick="openM('eSup','${s.id}')"><i class="fas fa-pen"></i></button><button class="bi d" onclick="dSup('${s.id}')"><i class="fas fa-trash"></i></button>`:''}</div></div>`}).join('')}
+  ${!sups.length?`<div class="card" style="grid-column:1/-1;text-align:center;color:var(--tx3);padding:40px">No supervisors</div>`:''}</div>`;
+}
+
+function pgZones(){
+  return`<div class="sh"><div class="stit"><i class="fas fa-map-location-dot" style="color:var(--gold)"></i> Zone Management</div>
+  <button class="btn b-gold b-sm" onclick="openM('aZone')"><i class="fas fa-plus"></i> Add Zone</button></div>
+  <div class="g2" style="gap:10px">
+  ${(DB.zones||[]).map(z=>{const st=DB.staff.filter(s=>s.zone===z.name).length;const sup=DB.supervisors.find(s=>s.zone===z.name);const tc=DB.assignments.filter(a=>{const s=gS(a.staffId);return s&&s.zone===z.name&&a.status==='Issued'}).length;return`<div class="card"><div class="flex ic g8 mb10">${zb(z.name)}<div class="fw6 ts" style="flex:1">${esc(z.name)}</div><button class="bi" onclick="openM('eZone','${z.id}')"><i class="fas fa-pen"></i></button><button class="bi d" onclick="dZone('${z.id}')"><i class="fas fa-trash"></i></button></div>
+  <div class="g3" style="gap:5px"><div class="csm" style="text-align:center"><div class="tx2 td">Techs</div><div class="fn2 fw6" style="font-size:16px">${st}</div></div><div class="csm" style="text-align:center"><div class="tx2 td">Tools</div><div class="fn2 fw6" style="font-size:16px;color:var(--gold)">${tc}</div></div><div class="csm" style="text-align:center"><div class="tx2 td">Supervisor</div><div class="ts" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:10px">${sup?esc(sup.name):'—'}</div></div></div></div>`}).join('')}
+  ${!(DB.zones||[]).length?`<div class="card" style="grid-column:1/-1;text-align:center;padding:40px;color:var(--tx3)">No zones. Add one above.</div>`:''}
+  </div>`;
+}
+
+function pgAssign(){
+  const active=DB.assignments.filter(a=>a.status==='Issued').sort((a,b)=>b.issuedAt-a.issuedAt);
+  return`<div class="sh"><div class="stit"><i class="fas fa-circle-check" style="color:var(--gold)"></i> Active (${active.length})</div>
+  <div class="flex g6">${hp('export_data')?`<button class="btn b-sm b-out" onclick="exExcel('assignments')"><i class="fas fa-file-excel"></i></button>`:''}<button class="btn b-gold b-sm" onclick="openM('issue')"><i class="fas fa-plus"></i> Issue</button></div></div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Technician</th><th>Zone</th><th>Tool</th><th>Avail</th><th>Date</th><th>Issued By</th>${hp('return_tools')?'<th>Action</th>':''}</tr></thead><tbody>
+  ${active.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:24px">No active assignments</td></tr>`:
+  active.map(a=>{const st=gS(a.staffId);const tool=gT(a.toolId);const av=tool?avQ(tool.id):0;return`<tr>
+    <td><div class="flex ic g6"><div class="ini" style="width:20px;height:20px;font-size:7px">${st?ini(st.name):'?'}</div><span class="fw6">${st?esc(st.name):'?'}</span></div></td>
+    <td>${st?zb(st.zone):''}</td>
+    <td class="fw6">${tool?esc(tool.name):'?'}</td>
+    <td><span class="${av<=0?'qno':av<=2?'qlow':'qok'}">${av<=0?'NONE':av}</span></td>
+    <td class="td tx2">${fd(a.issuedAt)}</td>
+    <td class="td tx2">${a.issuedBy?esc(a.issuedBy):'—'}</td>
+    ${hp('return_tools')?`<td><button class="btn b-out b-sm" onclick="openM('ret','${a.id}')"><i class="fas fa-arrow-left"></i> Return</button></td>`:''}
+  </tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+
+function pgHist(){
+  const hist=[...DB.history].sort((a,b)=>b.timestamp-a.timestamp);
+  return`<div class="sh"><div class="stit"><i class="fas fa-clock-rotate-left" style="color:var(--gold)"></i> History (${hist.length})</div>${hp('export_data')?`<button class="btn b-sm b-out" onclick="exExcel('history')"><i class="fas fa-file-excel"></i> Export</button>`:''}</div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Date/Time</th><th>Technician</th><th>Tool</th><th>Action</th><th>Issued By</th><th>Condition</th><th>Remarks</th></tr></thead><tbody>
+  ${hist.length===0?`<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:24px">No history</td></tr>`:
+  hist.map(h=>{const st=gS(h.staffId);const tool=gT(h.toolId);return`<tr>
+    <td class="td tx2">${fdt(h.timestamp)}</td><td>${st?esc(st.name):'?'}</td>
+    <td class="fw6">${tool?esc(tool.name):'?'}</td>
+    <td><span class="badge ${h.action==='Issued'?'bgr':'bb'}">${h.action}</span></td>
+    <td class="td tx2">${h.issuedBy?esc(h.issuedBy):'—'}</td>
+    <td>${condBadge(h.condition||'Good')}</td>
+    <td class="td tx2">${h.remarks||'—'}</td>
+  </tr>`}).join('')}
+  </tbody></table></div></div>`;
+}
+
+function pgSearch(){
+  const qt=(S.srch.tools||'').toLowerCase(),qs=(S.srch.staff||'').toLowerCase(),qsup=(S.srch.sups||'').toLowerCase();
+  const tools=qt?DB.tools.filter(t=>t.name.toLowerCase().includes(qt)):[];
+  const staff=qs?DB.staff.filter(s=>s.name.toLowerCase().includes(qs)):[];
+  const sups=qsup?DB.supervisors.filter(s=>s.name.toLowerCase().includes(qsup)):[];
+  return`<div class="g3 mb10">
+    <div class="csm"><div class="fl"><i class="fas fa-toolbox"></i> Tools</div><div class="sr"><i class="fas fa-magnifying-glass"></i><input class="fc" placeholder="Tool name..." value="${esc(S.srch.tools||'')}" oninput="S.srch.tools=this.value;rp()"/></div></div>
+    <div class="csm"><div class="fl"><i class="fas fa-users"></i> Technicians</div><div class="sr"><i class="fas fa-magnifying-glass"></i><input class="fc" placeholder="Name..." value="${esc(S.srch.staff||'')}" oninput="S.srch.staff=this.value;rp()"/></div></div>
+    <div class="csm"><div class="fl"><i class="fas fa-user-tie"></i> Supervisors</div><div class="sr"><i class="fas fa-magnifying-glass"></i><input class="fc" placeholder="Name..." value="${esc(S.srch.sups||'')}" oninput="S.srch.sups=this.value;rp()"/></div></div>
+  </div>
+  ${qt?`<div class="card mb10"><div class="stit mb10">Tools (${tools.length})</div><table><thead><tr><th>Name</th><th>Qty</th><th>Available</th><th>Condition</th></tr></thead><tbody>${tools.slice(0,15).map(t=>{const av=avQ(t.id);return`<tr><td>${esc(t.name)}</td><td>${t.quantity||1}</td><td><span class="${av<=0?'qno':av<=2?'qlow':'qok'}">${av<=0?'NONE':av}</span></td><td>${condBadge(t.condition||'Good')}</td></tr>`}).join('')}</tbody></table></div>`:''}
+  ${qs?`<div class="card mb10"><div class="stit mb10">Technicians (${staff.length})</div><table><thead><tr><th>Name</th><th>Zone</th><th>Supervisor</th><th>Tools</th></tr></thead><tbody>${staff.map(s=>{const sup=gSup(s.supervisorId);return`<tr><td>${esc(s.name)}</td><td>${zb(s.zone)}</td><td>${sup?esc(sup.name):'—'}</td><td><span class="badge bg">${stTools(s.id).length}</span></td></tr>`}).join('')}</tbody></table></div>`:''}
+  ${qsup?`<div class="card"><div class="stit mb10">Supervisors (${sups.length})</div><table><thead><tr><th>Name</th><th>Zone</th><th>Phone</th><th>Techs</th><th>Tools</th></tr></thead><tbody>${sups.map(s=>`<tr><td>${esc(s.name)}</td><td>${zb(s.zone)}</td><td>${s.phone}</td><td>${supStaff(s.id).length}</td><td>${supTools(s.id).length}</td></tr>`).join('')}</tbody></table></div>`:''}
+  ${!qt&&!qs&&!qsup?`<div class="card" style="text-align:center;padding:40px;color:var(--tx3)"><i class="fas fa-magnifying-glass" style="font-size:24px;display:block;margin-bottom:8px"></i>Type above to search</div>`:''}`;
+}
+
+function pgExport(){
+  const secs=[{k:'all',l:'Full Export',i:'fa-database'},{k:'tools',l:'Tools',i:'fa-toolbox'},{k:'staff',l:'Technicians',i:'fa-users'},{k:'supervisors',l:'Supervisors',i:'fa-user-tie'},{k:'assignments',l:'Assignments',i:'fa-handshake'},{k:'history',l:'History',i:'fa-clock-rotate-left'}];
+  return`<div class="g2" style="gap:10px">${secs.map(s=>`<div class="card" style="display:flex;align-items:center;gap:10px"><div class="si si-g" style="flex-shrink:0"><i class="fas ${s.i}"></i></div><div style="flex:1"><div class="fw6 ts">${s.l}</div></div><button class="btn b-gr b-sm" onclick="exExcel('${s.k}')"><i class="fas fa-file-excel"></i> Export</button></div>`).join('')}</div>`;
+}
+
+function pgAdmin(){
+  if(S.user?.role!=='Admin')return`<div class="card" style="text-align:center;padding:40px;color:var(--tx3)"><i class="fas fa-lock" style="font-size:22px"></i><div style="margin-top:8px">Admin only</div></div>`;
+  return`<div class="tabs"><div class="tab${S.tab==='users'?' on':''}" onclick="S.tab='users';rp()">Users</div><div class="tab${S.tab==='backup'?' on':''}" onclick="S.tab='backup';rp()">Backup</div><div class="tab${S.tab==='cloud'?' on':''}" onclick="S.tab='cloud';rp()">Cloud</div></div>
+  ${S.tab==='users'?adUsers():S.tab==='backup'?adBackup():adCloud()}`;
+}
+function adUsers(){
+  return`<div class="sh mb10"><div class="stit">Users</div><button class="btn b-gold b-sm" onclick="openM('aUser')"><i class="fas fa-plus"></i> Add User</button></div>
+  <div class="card"><div class="tw"><table><thead><tr><th>Name</th><th>Username</th><th>Role</th><th>Permissions</th><th>Actions</th></tr></thead><tbody>
+  ${DB.users.map(u=>`<tr><td><div class="flex ic g8"><div class="ini">${ini(u.name)}</div><span class="fw6">${esc(u.name)}</span></div></td><td><span class="badge bgy fn2">${u.username}</span></td><td><span class="badge ${RC[u.role]||'bgy'}">${u.role}</span></td><td>${u.role==='Admin'?`<span class="badge bg">All</span>`:(u.permissions||[]).slice(0,2).map(p=>`<span style="display:inline-block;padding:1px 4px;background:rgba(37,99,235,.08);border:1px solid rgba(37,99,235,.2);border-radius:3px;font-size:8px;color:#1d4ed8;margin:1px">${PL[p]||p}</span>`).join('')+(u.permissions?.length>2?` <span class="tx2 td">+${u.permissions.length-2}</span>`:'')}</td><td><div class="flex g6"><button class="bi" onclick="openM('eUser','${u.id}')"><i class="fas fa-pen"></i></button>${u.username!=='admin'?`<button class="bi d" onclick="dUser('${u.id}')"><i class="fas fa-trash"></i></button>`:''}</div></td></tr>`).join('')}
+  </tbody></table></div></div>`;
+}
+function adBackup(){
+  const backs=(DB.backups||[]).sort((a,b)=>b.timestamp-a.timestamp);
+  return`<div class="g2 mb10" style="gap:10px">
+    <div class="card"><div class="stit mb10">Create Backup</div><button class="btn b-gold b-sm" onclick="doBackup()"><i class="fas fa-download"></i> Backup Now</button></div>
+    <div class="card"><div class="stit mb10">Load from Cloud</div><button class="btn b-bl b-sm" onclick="pullAll()"><i class="fas fa-cloud-arrow-down"></i> Pull from Cloud</button></div>
+  </div>
+  <div class="card"><div class="stit mb10">Backup History</div>
+  ${backs.length===0?`<div class="td" style="padding:14px;text-align:center">No backups</div>`:
+  `<table><thead><tr><th>Date/Time</th></tr></thead><tbody>${backs.slice(0,10).map(b=>`<tr><td>${fdt(b.timestamp)}</td></tr>`).join('')}</tbody></table>`}
+  </div>`;
+}
+function adCloud(){
+  const su=localStorage.getItem('ep_surl')||'';
+  const sk=localStorage.getItem('ep_skey')||'';
+  return`<div class="card mb10">
+    <div class="stit mb10"><i class="fas fa-cloud" style="color:var(--gold)"></i> Supabase Cloud Connection</div>
+    ${CC?`<div class="aok"><i class="fas fa-check-circle"></i> <strong>Connected!</strong> Data syncs across all devices in real-time.</div>`:
+    `<div class="aw"><i class="fas fa-triangle-exclamation"></i> <strong>Not connected.</strong> Enter Supabase details below and click Connect.</div>`}
+    <div style="margin:10px 0;padding:10px;background:var(--bg3);border-radius:5px;font-size:10px;color:var(--tx2)">
+      <strong>Setup steps:</strong><br>
+      1. Supabase SQL Editor-ൽ zones table create ചെയ്യുക (chat-ൽ SQL കൊടുത്തിട്ടുണ്ട്)<br>
+      2. Below URL and Key enter ചെയ്ത് <strong>Connect & Sync</strong> click ചെയ്യുക<br>
+      3. ✅ Connected ആയാൽ ഏത് device-ലും login ചെയ്ത് use ചെയ്യാം
+    </div>
+    <div class="g2" style="gap:8px;margin-top:8px">
+      <div class="fg"><label class="fl">Supabase URL (/rest/v1/)</label><input class="fc" id="su" placeholder="https://xxxx.supabase.co/rest/v1/" value="${esc(su)}"/></div>
+      <div class="fg"><label class="fl">Anon Key (eyJ...)</label><input class="fc" id="sk" placeholder="eyJhbGci..." value="${esc(sk)}"/></div>
+    </div>
+    <div class="flex g6">
+      <button class="btn b-bl b-sm" onclick="connectC()"><i class="fas fa-plug"></i> Connect & Sync</button>
+      ${CC?`<button class="btn b-gr b-sm" onclick="syncAll()"><i class="fas fa-sync"></i> Sync Now</button><button class="btn b-out b-sm" onclick="pullAll()"><i class="fas fa-cloud-arrow-down"></i> Pull from Cloud</button>`:''}
+    </div>
+  </div>
+  <div class="card"><div class="stit mb10"><i class="fas fa-users" style="color:var(--gold)"></i> Supervisor Access</div>
+  <p class="tm ts" style="margin-bottom:8px">Users tab-ൽ Supervisor user create ചെയ്ത് WhatsApp വഴി link share ചെയ്യുക.</p>
+  ${DB.supervisors.map(s=>{const u=DB.users.find(x=>x.name===s.name);return`<div style="display:flex;align-items:center;gap:8px;padding:6px;background:var(--bg2);border-radius:5px;margin-bottom:5px">
+    <div class="ini">${ini(s.name)}</div>
+    <div style="flex:1"><div class="fw6 ts">${esc(s.name)}</div><div class="tx2 td">${s.zone} · ${u?'User: '+u.username:'No user account'}</div></div>
+    <button class="btn b-wa b-sm" onclick="shareSupLink('${s.id}')"><i class="fab fa-whatsapp"></i> Share</button>
+  </div>`}).join('')}
+  </div>`;
+}
+
+// ── MODALS ──
+function rModal(){
+  switch(S.modal){
+    case 'aTool':case 'eTool':return mTool(S.modal==='eTool'?S.md.id:null);
+    case 'aqty':return mAqty(S.md.id);
+    case 'aTech':case 'eTech':return mTech(S.modal==='eTech'?S.md.id:null);
+    case 'aSup':case 'eSup':return mSup(S.modal==='eSup'?S.md.id:null);
+    case 'aZone':case 'eZone':return mZone(S.modal==='eZone'?S.md.id:null);
+    case 'issue':return mIssue();case 'ret':return mRet();
+    case 'vTech':return mVTech();case 'vSup':return mVSup();
+    case 'vTool':return mVTool();case 'print':return mPrint();
+    case 'leaveRet':return mLeaveRet();
+    case 'aUser':case 'eUser':return mUser(S.modal==='eUser'?S.md.id:null);
+    default:return '';
+  }
+}
+const mo=()=>`<div class="ov" onclick="if(event.target===this)closeM()">`;
+
+function mTool(id){
+  const t=id?gT(id):{name:'',quantity:1,condition:'Good',notes:''};
+  return`${mo()}<div class="modal"><div class="mh"><div class="mt"><i class="fas fa-toolbox" style="color:var(--gold)"></i> ${id?'Edit':'Add'} Tool</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="fg"><label class="fl">Tool Name *</label><input class="fc" id="tn" value="${esc(t?t.name:'')}"/></div>
+  <div class="g2" style="gap:8px">
+    <div class="fg"><label class="fl">Quantity</label><input class="fc" id="tq" type="number" min="1" value="${t?t.quantity:1}"/></div>
+    <div class="fg"><label class="fl">Condition</label>
+      <select class="fc" id="tc">${CONDITIONS.map(c=>`<option value="${c}" ${t?.condition===c?'selected':''}>${c}</option>`).join('')}</select>
+    </div>
+  </div>
+  <div class="fg"><label class="fl">Notes</label><textarea class="fc" id="tnotes">${esc(t?t.notes:'')}</textarea></div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="saveTool('${id||''}')"><i class="fas fa-save"></i> Save</button></div></div></div>`;
+}
+
+function mAqty(id){
+  const t=gT(id);if(!t)return'';
+  const iss=DB.assignments.filter(a=>a.toolId===id&&a.status==='Issued').length;
+  return`${mo()}<div class="modal"><div class="mh"><div class="mt"><i class="fas fa-plus-circle" style="color:var(--gold)"></i> Add Stock — ${esc(t.name)}</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="g2 mb10" style="gap:8px"><div class="csm" style="text-align:center"><div class="tx2 td">Current Total</div><div class="fn2 fw6" style="font-size:20px">${t.quantity||1}</div></div><div class="csm" style="text-align:center"><div class="tx2 td">Available</div><div class="fn2 fw6" style="font-size:20px;color:var(--gold)">${(t.quantity||1)-iss}</div></div></div>
+  <div class="fg"><label class="fl">Add Quantity *</label><input class="fc" id="aq" type="number" min="1" value="1" oninput="var el=document.getElementById('aqnew');if(el)el.textContent=${t.quantity||1}+parseInt(this.value||0)"/></div>
+  <div class="fg"><label class="fl">Remarks</label><input class="fc" id="aqr" placeholder="e.g. Purchased 3 new units"/></div>
+  <div class="ai">New total: <strong id="aqnew">${(t.quantity||1)+1}</strong> units</div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="addQty('${id}')"><i class="fas fa-plus"></i> Add Stock</button></div></div></div>`;
+}
+
+function mTech(id){
+  const s=id?DB.staff.find(x=>x.id===id):{name:'',zone:(DB.zones&&DB.zones[0]?.name)||'',supervisorId:''};
+  return`${mo()}<div class="modal"><div class="mh"><div class="mt"><i class="fas fa-user" style="color:var(--gold)"></i> ${id?'Edit':'Add'} Technician</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="fg"><label class="fl">Full Name *</label><input class="fc" id="sn" value="${esc(s?s.name:'')}"/></div>
+  <div class="g2" style="gap:8px">
+    <div class="fg"><label class="fl">Zone *</label><select class="fc" id="sz">${zns().map(z=>`<option ${s?.zone===z?'selected':''}>${z}</option>`).join('')}</select></div>
+    <div class="fg"><label class="fl">Supervisor</label><select class="fc" id="ss"><option value="">— None —</option>${DB.supervisors.map(sv=>`<option value="${sv.id}" ${s?.supervisorId===sv.id?'selected':''}>${esc(sv.name)}</option>`).join('')}</select></div>
+  </div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="saveTech('${id||''}')"><i class="fas fa-save"></i> Save</button></div></div></div>`;
+}
+
+function mSup(id){
+  const s=id?gSup(id):{name:'',zone:(DB.zones&&DB.zones[0]?.name)||'',phone:''};
+  return`${mo()}<div class="modal"><div class="mh"><div class="mt"><i class="fas fa-user-tie" style="color:var(--gold)"></i> ${id?'Edit':'Add'} Supervisor</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="fg"><label class="fl">Full Name *</label><input class="fc" id="svn" value="${esc(s?s.name:'')}"/></div>
+  <div class="g2" style="gap:8px"><div class="fg"><label class="fl">Zone *</label><select class="fc" id="svz">${zns().map(z=>`<option ${s?.zone===z?'selected':''}>${z}</option>`).join('')}</select></div><div class="fg"><label class="fl">Phone *</label><input class="fc" id="svp" value="${esc(s?s.phone:'')}"/></div></div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="saveSup('${id||''}')"><i class="fas fa-save"></i> Save</button></div></div></div>`;
+}
+
+function mZone(id){
+  const z=id?(DB.zones||[]).find(x=>x.id===id):null;
+  return`${mo()}<div class="modal"><div class="mh"><div class="mt"><i class="fas fa-map-location-dot" style="color:var(--gold)"></i> ${id?'Edit':'Add'} Zone</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="fg"><label class="fl">Zone Name *</label><input class="fc" id="zn" value="${esc(z?z.name:'')}" placeholder="e.g. Zone 6, Block A, Building 3..."/></div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="saveZone('${id||''}')"><i class="fas fa-save"></i> Save</button></div></div></div>`;
+}
+
+function mIssue(){
+  const sQ=S.srch.is.toLowerCase(),tQ=S.srch.it.toLowerCase();
+  const fS=sQ?DB.staff.filter(s=>s.name.toLowerCase().includes(sQ)):DB.staff;
+  const fT=tQ?DB.tools.filter(t=>t.name.toLowerCase().includes(tQ)):DB.tools;
+  const sel=S.md.sid||'';
+  return`${mo()}<div class="modal mxl"><div class="mh"><div class="mt"><i class="fas fa-handshake" style="color:var(--gold)"></i> Issue Tool(s)</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="g2" style="gap:12px">
+    <div>
+      <div class="fg"><label class="fl">Search Technician</label><input class="fc" placeholder="Name..." value="${esc(S.srch.is)}" oninput="S.srch.is=this.value;refIM()"/></div>
+      <div class="cbl">${fS.map(s=>`<label class="cbi" style="${sel===s.id?'background:rgba(184,134,11,.1)':''}"><input type="radio" name="isr" value="${s.id}" ${sel===s.id?'checked':''} onchange="S.md.sid=this.value;refIM()"/><span>${esc(s.name)}</span><span class="badge bb tx2">${s.zone}</span></label>`).join('')}</div>
+      ${sel?`<div style="margin-top:4px;padding:4px 7px;background:var(--bg3);border-radius:4px;font-size:10px"><i class="fas fa-user-check" style="color:#16a34a"></i> <strong>${esc(gS(sel)?.name||'')}</strong></div>`:''}
+    </div>
+    <div>
+      <div class="fg"><label class="fl">Search Tools</label><input class="fc" placeholder="Tool name..." value="${esc(S.srch.it)}" oninput="S.srch.it=this.value;refIM()"/></div>
+      <div class="cbl">${fT.map(t=>{const av=avQ(t.id);const dis=av<=0&&!S.tids.includes(t.id);return`<label class="cbi" style="${dis?'opacity:.45':''}"><input type="checkbox" ${S.tids.includes(t.id)?'checked':''} ${dis?'disabled':''} onchange="togT('${t.id}',this.checked)"/><span style="flex:1">${esc(t.name)}</span><span class="${av<=0?'qno':av<=2?'qlow':'qok'}" style="font-size:9px">${av<=0?'NONE':av}</span></label>`}).join('')}</div>
+    </div>
+  </div>
+  <div class="fg" style="margin-top:9px"><label class="fl">Remarks</label><input class="fc" id="ir" placeholder="Optional..."/></div>
+  <div class="ai"><i class="fas fa-info-circle"></i> Selected: <strong id="sc">${S.tids.length}</strong> tool(s) · Issued By: <strong>${esc(S.user?.name||'')}</strong></div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="issueTls()"><i class="fas fa-handshake"></i> Issue</button></div></div></div>`;
+}
+
+function mRet(){
+  const a=DB.assignments.find(x=>x.id===S.md.id);if(!a)return'';
+  const st=gS(a.staffId),tool=gT(a.toolId);
+  return`${mo()}<div class="modal"><div class="mh"><div class="mt"><i class="fas fa-arrow-left" style="color:var(--gold)"></i> Return Tool</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="g2 mb10" style="gap:8px"><div class="csm"><div class="tx2 td">Technician</div><div class="fw6 ts">${st?esc(st.name):'?'}</div></div><div class="csm"><div class="tx2 td">Tool</div><div class="fw6 ts">${tool?esc(tool.name):'?'}</div></div></div>
+  <div class="fg"><label class="fl">Return Condition *</label>
+    <select class="fc" id="rc">${CONDITIONS.map(c=>`<option value="${c}">${c}</option>`).join('')}</select>
+  </div>
+  <div class="fg"><label class="fl">Remarks</label><textarea class="fc" id="rr"></textarea></div>
+  <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:4px;padding:8px;font-size:9px;color:var(--tx2);margin-bottom:7px">TERMS: Tools must be returned as issued. Damage must be reported immediately. Lost tools will be charged to technician. Signature confirms return.</div>
+  <div class="fg"><label class="fl">Technician Signature (type name)</label><input class="fc" id="rs" placeholder="${st?esc(st.name):''}"/></div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="retTool('${a.id}')"><i class="fas fa-check"></i> Confirm Return</button></div></div></div>`;
+}
+
+function mVTech(){
+  const s=DB.staff.find(x=>x.id===S.md.id);if(!s)return'';
+  const sup=gSup(s.supervisorId),tools=stTools(s.id).map(a=>({a,tool:gT(a.toolId)}));
+  const hist=DB.history.filter(h=>h.staffId===s.id).sort((a,b)=>b.timestamp-a.timestamp);
+  return`${mo()}<div class="modal mlg"><div class="mh"><div class="mt"><i class="fas fa-user" style="color:var(--gold)"></i> ${esc(s.name)}</div><div class="flex g6"><button class="btn b-sm b-out" onclick="printS('${s.id}')"><i class="fas fa-print"></i></button><button class="btn b-wa b-sm" onclick="shareWA('${s.id}')"><i class="fab fa-whatsapp"></i></button><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div></div><div class="mb">
+  <div class="g3 mb10" style="gap:6px"><div class="csm"><div class="tx2 td">Zone</div>${zb(s.zone)}</div><div class="csm"><div class="tx2 td">Supervisor</div><div class="fw6 ts">${sup?esc(sup.name):'—'}</div></div><div class="csm"><div class="tx2 td">Tools</div><div class="fn2 fw6" style="font-size:18px;color:var(--gold)">${tools.length}</div></div></div>
+  <div class="stit mb10">Current Tools</div>
+  ${tools.length===0?`<div class="td ts mb10">No tools issued</div>`:
+  `<table style="margin-bottom:10px"><thead><tr><th>Tool</th><th>Date</th><th>Issued By</th></tr></thead><tbody>${tools.map(({a,tool})=>`<tr><td class="fw6">${tool?esc(tool.name):'?'}</td><td class="td tx2">${fd(a.issuedAt)}</td><td class="td tx2">${a.issuedBy||'—'}</td></tr>`).join('')}</tbody></table>`}
+  <div class="stit mb10">History</div>
+  ${hist.length===0?`<div class="td ts">No history</div>`:
+  `<table><thead><tr><th>Date</th><th>Tool</th><th>Action</th><th>Condition</th></tr></thead><tbody>${hist.slice(0,15).map(h=>{const tool=gT(h.toolId);return`<tr><td class="td tx2">${fd(h.timestamp)}</td><td>${tool?esc(tool.name):'?'}</td><td><span class="badge ${h.action==='Issued'?'bgr':'bb'}">${h.action}</span></td><td>${condBadge(h.condition||'Good')}</td></tr>`}).join('')}</tbody></table>`}
+  </div></div></div>`;
+}
+
+function mVSup(){
+  const s=gSup(S.md.id);if(!s)return'';
+  const staff=supStaff(s.id);
+  return`${mo()}<div class="modal mlg"><div class="mh"><div class="mt"><i class="fas fa-user-tie" style="color:var(--gold)"></i> ${esc(s.name)}</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="g3 mb10" style="gap:6px"><div class="csm"><div class="tx2 td">Zone</div>${zb(s.zone)}</div><div class="csm"><div class="tx2 td">Phone</div><div class="fw6 ts">${s.phone}</div></div><div class="csm"><div class="tx2 td">Techs</div><div class="fn2 fw6" style="font-size:18px;color:var(--gold)">${staff.length}</div></div></div>
+  <div class="stit mb10">Technicians</div>
+  ${staff.length===0?`<div class="td ts">No technicians</div>`:
+  `<table><thead><tr><th>Name</th><th>Zone</th><th>Tools</th><th></th></tr></thead><tbody>${staff.map(st=>{const tc=stTools(st.id).length;return`<tr><td><div class="flex ic g6"><div class="ini" style="width:20px;height:20px;font-size:7px">${ini(st.name)}</div>${esc(st.name)}</div></td><td>${zb(st.zone)}</td><td><span class="badge ${tc>0?'bg':'bgy'}">${tc}</span></td><td><button class="bi" onclick="closeM();openM('vTech','${st.id}')"><i class="fas fa-eye"></i></button></td></tr>`}).join('')}</tbody></table>`}
+  </div></div></div>`;
+}
+
+function mVTool(){
+  const t=gT(S.md.id);if(!t)return'';
+  const iss=DB.assignments.filter(a=>a.toolId===t.id&&a.status==='Issued');
+  const hist=DB.history.filter(h=>h.toolId===t.id).sort((a,b)=>b.timestamp-a.timestamp);
+  const av=avQ(t.id);
+  return`${mo()}<div class="modal mlg"><div class="mh"><div class="mt"><i class="fas fa-toolbox" style="color:var(--gold)"></i> ${esc(t.name)}</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="g3 mb10" style="gap:6px"><div class="csm"><div class="tx2 td">Total Qty</div><div class="fn2 fw6" style="font-size:18px">${t.quantity||1}</div></div><div class="csm"><div class="tx2 td">Available</div><div class="fn2 fw6" style="font-size:18px;color:${av<=0?'#dc2626':'#16a34a'}">${av}</div></div><div class="csm"><div class="tx2 td">Condition</div>${condBadge(t.condition||'Good')}</div></div>
+  ${iss.length>0?`<div class="stit mb10">Issued To</div><table style="margin-bottom:10px"><thead><tr><th>Technician</th><th>Zone</th><th>Date</th><th>By</th></tr></thead><tbody>${iss.map(a=>{const st=gS(a.staffId);return`<tr><td>${st?esc(st.name):'?'}</td><td>${st?zb(st.zone):''}</td><td class="td tx2">${fd(a.issuedAt)}</td><td class="td tx2">${a.issuedBy||'—'}</td></tr>`}).join('')}</tbody></table>`:''}
+  <div class="stit mb10">History</div>${hist.length===0?`<div class="td ts">No history</div>`:`<table><thead><tr><th>Date</th><th>Technician</th><th>Action</th><th>Condition</th></tr></thead><tbody>${hist.slice(0,10).map(h=>{const st=gS(h.staffId);return`<tr><td class="td tx2">${fd(h.timestamp)}</td><td>${st?esc(st.name):'?'}</td><td><span class="badge ${h.action==='Issued'?'bgr':'bb'}">${h.action}</span></td><td>${condBadge(h.condition||'Good')}</td></tr>`}).join('')}</tbody></table>`}
+  </div></div></div>`;
+}
+
+function mLeaveRet(){
+  const s=DB.staff.find(x=>x.id===S.md.id);if(!s)return'';
+  const sup=gSup(s.supervisorId);
+  const tools=stTools(s.id).map(a=>({a,tool:gT(a.toolId)}));
+  return`${mo()}<div class="modal mlg"><div class="mh"><div class="mt"><i class="fas fa-door-open" style="color:var(--gold)"></i> Leave / Exit — ${esc(s.name)}</div><div class="flex g6"><button class="btn b-sm b-out" onclick="printLeave('${s.id}')"><i class="fas fa-print"></i> Print</button><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div></div><div class="mb">
+  <div class="aw"><i class="fas fa-triangle-exclamation"></i> All tools must be returned before technician clearance.</div>
+  <div class="g3 mb10" style="gap:6px"><div class="csm"><div class="tx2 td">Technician</div><div class="fw6 ts">${esc(s.name)}</div></div><div class="csm"><div class="tx2 td">Zone</div>${zb(s.zone)}</div><div class="csm"><div class="tx2 td">Supervisor</div><div class="fw6 ts">${sup?esc(sup.name):'—'}</div></div></div>
+  <div class="stit mb10">Tools to Return (${tools.length})</div>
+  ${tools.length===0?`<div class="aok"><i class="fas fa-check-circle"></i> No tools pending. Technician is clear!</div>`:
+  `<table style="margin-bottom:10px"><thead><tr><th>Tool</th><th>Issued</th><th>Status</th></tr></thead><tbody>${tools.map(({a,tool})=>`<tr><td class="fw6">${tool?esc(tool.name):'?'}</td><td class="td tx2">${fd(a.issuedAt)}</td><td><span class="badge br">Pending Return</span></td></tr>`).join('')}</tbody></table>`}
+  <div class="g2" style="gap:8px"><div class="fg"><label class="fl">Technician Signature</label><input class="fc" id="ls1" placeholder="${esc(s.name)}"/></div><div class="fg"><label class="fl">Supervisor Signature</label><input class="fc" id="ls2" placeholder="${sup?esc(sup.name):'Supervisor'}"/></div></div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Close</button>${tools.length>0?`<button class="btn b-rd b-sm" onclick="retAll('${s.id}')"><i class="fas fa-rotate-left"></i> Return All Tools</button>`:''}</div></div></div>`;
+}
+
+function mUser(id){
+  const u=id?DB.users.find(x=>x.id===id):{name:'',username:'',password:'',role:'Supervisor',permissions:[]};
+  return`${mo()}<div class="modal mlg"><div class="mh"><div class="mt"><i class="fas fa-user-gear" style="color:var(--gold)"></i> ${id?'Edit':'Add'} User</div><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div><div class="mb">
+  <div class="g2" style="gap:8px"><div class="fg"><label class="fl">Full Name *</label><input class="fc" id="un" value="${esc(u?u.name:'')}"/></div><div class="fg"><label class="fl">Username *</label><input class="fc" id="uu" value="${esc(u?u.username:'')}" ${id&&u?.username==='admin'?'disabled':''}/></div></div>
+  <div class="g2" style="gap:8px"><div class="fg"><label class="fl">Password ${id?'(blank=keep)':'*'}</label><input class="fc" id="up" type="password"/></div>
+  <div class="fg"><label class="fl">Role</label><select class="fc" id="ur" onchange="document.getElementById('ps').style.display=this.value==='Admin'?'none':'block'">
+    ${ROLES.map(r=>`<option value="${r}" ${u?.role===r?'selected':''}>${r}</option>`).join('')}
+  </select></div></div>
+  <div id="ps" style="${u?.role==='Admin'?'display:none':''}">
+    <label class="fl">Permissions</label>
+    <div class="cbl">${ALLP.map(p=>`<label class="cbi"><input type="checkbox" value="${p}" class="pc" ${(u?.permissions||[]).includes(p)?'checked':''}/><span>${PL[p]||p}</span></label>`).join('')}</div>
+    <div class="flex g6" style="margin-top:5px"><button class="btn b-sm b-out" onclick="document.querySelectorAll('.pc').forEach(c=>c.checked=true)">All</button><button class="btn b-sm b-out" onclick="document.querySelectorAll('.pc').forEach(c=>c.checked=false)">None</button></div>
+  </div>
+  </div><div class="mf"><button class="btn b-out b-sm" onclick="closeM()">Cancel</button><button class="btn b-gold b-sm" onclick="saveUser('${id||''}')"><i class="fas fa-save"></i> Save</button></div></div></div>`;
+}
+
+function mPrint(){
+  const s=DB.staff.find(x=>x.id===S.md.id);if(!s)return'';
+  const sup=gSup(s.supervisorId),tools=stTools(s.id).map(a=>({a,tool:gT(a.toolId)}));
+  const isL=S.md.isLeave;
+  const TC='TERMS & CONDITIONS:\n1. Tools are the responsibility of the named technician.\n2. All tools must be kept in good working condition.\n3. Damaged or lost tools must be reported immediately.\n4. Tools must be returned upon request or end of employment.\n5. Unauthorized transfer of tools is prohibited.\n\nEmirates Properties Facility Management LLC';
+  const body=`<div style="font-family:Arial,sans-serif;padding:22px;max-width:800px;margin:0 auto;background:#fff;color:#000">
+    <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid #B8860B;padding-bottom:10px;margin-bottom:12px">
+      <div><div style="font-size:16px;font-weight:700;letter-spacing:1px">EMIRATES PROPERTIES</div><div style="font-size:9px;color:#666;letter-spacing:2px">FACILITY MANAGEMENT LLC</div></div>
+      <div style="text-align:right;font-size:10px;color:#666"><div style="font-size:12px;font-weight:700;color:#000">${isL?'LEAVE / EXIT TOOL RETURN':'TOOL ISSUE LIST'}</div><div>Date: ${new Date().toLocaleDateString('en-GB')}</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-bottom:12px">
+      ${[['Technician',s.name],['Zone',s.zone],['Supervisor',sup?sup.name:'—']].map(([l,v])=>`<div style="padding:7px;background:#f8f7f5;border:1px solid #e0ddd5;border-radius:4px"><div style="font-size:8px;color:#999;text-transform:uppercase;margin-bottom:2px">${l}</div><div style="font-weight:700;font-size:11px">${v}</div></div>`).join('')}
+    </div>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:12px;font-size:10px">
+      <thead><tr style="background:#1a1a1a;color:#fff">${['No.','Tool Name','Issued Date','Issued By','Condition'].map(h=>`<th style="padding:6px 8px;text-align:left">${h}</th>`).join('')}</tr></thead>
+      <tbody>${tools.map(({a,tool},i)=>`<tr style="border-bottom:1px solid #eee"><td style="padding:5px 8px">${i+1}</td><td style="padding:5px 8px;font-weight:600">${tool?tool.name:''}</td><td style="padding:5px 8px;color:#666">${fd(a.issuedAt)}</td><td style="padding:5px 8px;color:#666">${a.issuedBy||'—'}</td><td style="padding:5px 8px">${a.condition||'Good'}</td></tr>`).join('')}${tools.length===0?`<tr><td colspan="5" style="padding:14px;text-align:center;color:#999">No tools currently issued</td></tr>`:''}</tbody>
+    </table>
+    <div style="background:#f8f7f5;border:1px solid #e0ddd5;border-radius:4px;padding:8px;font-size:8px;color:#555;margin-bottom:12px;white-space:pre-line">${TC}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:40px;margin-top:22px">
+      ${[['Technician Signature',s.name],['Supervisor Signature',sup?sup.name:'—'],['Dept. Authority','']].map(([l,n])=>`<div style="border-top:1px solid #000;padding-top:5px"><div style="font-size:8px;color:#666;text-transform:uppercase">${l}</div><div style="font-size:10px;margin-top:3px">${n}</div><div style="font-size:8px;color:#999;margin-top:22px">Sign & Date: ____________</div></div>`).join('')}
+    </div>
+    <div style="margin-top:14px;text-align:center;font-size:8px;color:#999">Emirates Properties FM LLC — TMS — ${new Date().toLocaleString('en-GB')}</div>
+  </div>`;
+  return`${mo()}<div class="modal mxl"><div class="mh"><div class="mt"><i class="fas fa-print" style="color:var(--gold)"></i> ${isL?'Leave Return':'Tool List'} — ${esc(s.name)}</div><div class="flex g6"><button class="btn b-gold b-sm" onclick="doPrint()"><i class="fas fa-print"></i> Print/PDF</button><button class="btn b-wa b-sm" onclick="shareWA('${s.id}')"><i class="fab fa-whatsapp"></i></button><button class="bi" onclick="closeM()"><i class="fas fa-times"></i></button></div></div><div class="mb" id="pp" style="background:#fff;border-radius:5px">${body}</div></div></div>`;
+}
+
+// ── ACTIONS ──
+function login(){
+  const u=document.getElementById('lg-u')?.value?.trim();
+  const p=document.getElementById('lg-p')?.value?.trim();
+  let user=DB.users.find(x=>x.username===u&&x.password===p);
+  if(!user&&u==='admin'&&p==='admin123')user={id:'admin-root',username:'admin',password:'admin123',role:'Admin',name:'Administrator',permissions:ALLP};
+  if(!user){showN('Invalid username or password','error');return}
+  S.user=user;render();showN(`Welcome, ${user.name}!`);
+}
+function logout(){S.user=null;S.pg='dashboard';render()}
+
+async function connectC(){
+  const url=document.getElementById('su')?.value?.trim();
+  const key=document.getElementById('sk')?.value?.trim();
+  if(!url||!key){showN('Enter URL and Key','error');return}
+  SURL=url;SKEY=key;localStorage.setItem('ep_surl',url);localStorage.setItem('ep_skey',key);
+  showN('Testing connection...','info');
+  const ok=await testC();
+  if(ok){showN('✅ Connected! Syncing data...','success');await syncAll();}
+  else showN('❌ Connection failed. Check URL and Key.','error');
+  render();
+}
+
+async function saveTool(id){
+  const name=document.getElementById('tn')?.value?.trim();
+  const qty=parseInt(document.getElementById('tq')?.value)||1;
+  const cond=document.getElementById('tc')?.value||'Good';
+  const notes=document.getElementById('tnotes')?.value||'';
+  if(!name){showN('Enter tool name','error');return}
+  if(id){const t=gT(id);if(t)Object.assign(t,{name,quantity:qty,condition:cond,notes});if(CC)await dbUp('tools',[gT(id)]);}
+  else{const item={id:uid(),name,quantity:qty,condition:cond,notes,createdAt:Date.now()};DB.tools.push(item);if(CC)await dbUp('tools',[item]);}
+  saveDB();closeM();S.pg='tools';render();showN('Tool saved!');
+}
+
+async function addQty(id){
+  const add=parseInt(document.getElementById('aq')?.value)||0;
+  if(add<=0){showN('Enter valid quantity','error');return}
+  const t=gT(id);if(!t)return;
+  t.quantity=(t.quantity||1)+add;if(CC)await dbUp('tools',[t]);
+  saveDB();closeM();render();showN(`Added ${add} units. Total: ${t.quantity}`);
+}
+
+async function dTool(id){if(!confirm('Delete tool?'))return;DB.tools=DB.tools.filter(t=>t.id!==id);DB.assignments=DB.assignments.filter(a=>a.toolId!==id);if(CC)await dbDel('tools',id);saveDB();render();showN('Deleted')}
+
+async function saveTech(id){
+  const name=document.getElementById('sn')?.value?.trim();
+  const zone=document.getElementById('sz')?.value;
+  const supervisorId=document.getElementById('ss')?.value||'';
+  if(!name){showN('Enter name','error');return}
+  if(id){const s=DB.staff.find(x=>x.id===id);if(s)Object.assign(s,{name,zone,supervisorId});if(CC)await dbUp('staff',[DB.staff.find(x=>x.id===id)]);}
+  else{const item={id:uid(),name,zone,supervisorId,createdAt:Date.now()};DB.staff.push(item);if(CC)await dbUp('staff',[item]);}
+  saveDB();closeM();render();showN('Technician saved!');
+}
+async function dTech(id){if(!confirm('Delete?'))return;DB.staff=DB.staff.filter(s=>s.id!==id);DB.assignments=DB.assignments.filter(a=>a.staffId!==id);if(CC)await dbDel('staff',id);saveDB();render();showN('Deleted')}
+
+async function saveSup(id){
+  const name=document.getElementById('svn')?.value?.trim();
+  const zone=document.getElementById('svz')?.value;
+  const phone=document.getElementById('svp')?.value?.trim();
+  if(!name||!phone){showN('Fill all fields','error');return}
+  if(id){const s=gSup(id);if(s)Object.assign(s,{name,zone,phone});if(CC)await dbUp('supervisors',[gSup(id)]);}
+  else{const item={id:uid(),name,zone,phone,createdAt:Date.now()};DB.supervisors.push(item);if(CC)await dbUp('supervisors',[item]);}
+  saveDB();closeM();render();showN('Saved!');
+}
+async function dSup(id){if(!confirm('Delete?'))return;DB.supervisors=DB.supervisors.filter(s=>s.id!==id);if(CC)await dbDel('supervisors',id);saveDB();render();showN('Deleted')}
+
+async function saveZone(id){
+  const name=document.getElementById('zn')?.value?.trim();
+  if(!name){showN('Enter zone name','error');return}
+  if(id){const z=(DB.zones||[]).find(x=>x.id===id);if(z)z.name=name;}
+  else{(DB.zones=DB.zones||[]).push({id:uid(),name,createdAt:Date.now()});}
+  if(CC)await dbUp('zones',DB.zones);saveDB();closeM();render();showN('Zone saved!');
+}
+async function dZone(id){if(!confirm('Delete zone?'))return;DB.zones=(DB.zones||[]).filter(z=>z.id!==id);if(CC)await dbDel('zones',id);saveDB();render();showN('Zone deleted')}
+
+async function issueTls(){
+  const sid=S.md.sid;const rem=document.getElementById('ir')?.value||'';
+  if(!sid){showN('Select a technician','error');return}
+  if(!S.tids.length){showN('Select tools','error');return}
+  for(const tid of S.tids){if(avQ(tid)<=0){showN('"'+gT(tid)?.name+'" has 0 available!','error');return}}
+  const now=Date.now(),by=S.user?.name||'';
+  const nA=[],nH=[];
+  S.tids.forEach(tid=>{
+    const a={id:uid(),staffId:sid,toolId:tid,status:'Issued',issuedAt:now,remarks:rem,condition:'Good',issuedBy:by,createdAt:now};
+    const h={id:uid(),staffId:sid,toolId:tid,action:'Issued',timestamp:now,remarks:rem,condition:'Good',issuedBy:by,createdAt:now};
+    DB.assignments.push(a);DB.history.push(h);nA.push(a);nH.push(h);
+  });
+  if(CC){await dbUp('assignments',nA);await dbUp('history',nH);}
+  S.tids=[];S.srch.is='';S.srch.it='';
+  saveDB();closeM();S.pg='assign';render();showN('Tools issued!');
+}
+
+async function retTool(aId){
+  const cond=document.getElementById('rc')?.value||'Good';
+  const rem=document.getElementById('rr')?.value||'';
+  const sig=document.getElementById('rs')?.value||'';
+  const a=DB.assignments.find(x=>x.id===aId);if(!a)return;
+  Object.assign(a,{status:'Returned',returnedAt:Date.now(),returnCondition:cond,signature:sig});
+  const h={id:uid(),staffId:a.staffId,toolId:a.toolId,action:'Returned',timestamp:Date.now(),remarks:rem+(sig?` | Sig: ${sig}`:''),condition:cond,issuedBy:S.user?.name||'',createdAt:Date.now()};
+  DB.history.push(h);const tool=gT(a.toolId);if(tool)tool.condition=cond;
+  if(CC){await dbUp('assignments',[a]);await dbUp('history',[h]);}
+  saveDB();closeM();render();showN('Tool returned!');
+}
+
+async function retAll(staffId){
+  const active=DB.assignments.filter(a=>a.staffId===staffId&&a.status==='Issued');
+  const s1=document.getElementById('ls1')?.value||'';
+  const s2=document.getElementById('ls2')?.value||'';
+  const now=Date.now();const nH=[];
+  for(const a of active){
+    Object.assign(a,{status:'Returned',returnedAt:now,returnCondition:'Good',signature:s1});
+    const h={id:uid(),staffId,toolId:a.toolId,action:'Returned',timestamp:now,remarks:`Leave/Exit | Tech: ${s1} | Sup: ${s2}`,condition:'Good',issuedBy:S.user?.name||'',createdAt:now};
+    DB.history.push(h);nH.push(h);
+  }
+  if(CC){await dbUp('assignments',active);await dbUp('history',nH);}
+  saveDB();closeM();render();showN(`${active.length} tools returned!`);
+}
+
+async function saveUser(id){
+  const name=document.getElementById('un')?.value?.trim();
+  const username=document.getElementById('uu')?.value?.trim();
+  const pass=document.getElementById('up')?.value?.trim();
+  const role=document.getElementById('ur')?.value;
+  const perms=role==='Admin'?ALLP:[...document.querySelectorAll('.pc:checked')].map(c=>c.value);
+  if(!name||!username){showN('Fill required fields','error');return}
+  if(id){const u=DB.users.find(x=>x.id===id);if(u){Object.assign(u,{name,role,permissions:perms});if(pass)u.password=pass;}if(CC)await dbUp('users',[DB.users.find(x=>x.id===id)]);}
+  else{if(!pass){showN('Password required','error');return}if(DB.users.find(u=>u.username===username)){showN('Username exists','error');return}const item={id:uid(),name,username,password:pass,role,permissions:perms,createdAt:Date.now()};DB.users.push(item);if(CC)await dbUp('users',[item]);}
+  saveDB();closeM();render();showN('User saved!');
+}
+function dUser(id){if(!confirm('Delete?'))return;DB.users=DB.users.filter(u=>u.id!==id);saveDB();render();showN('Deleted')}
+
+function togT(id,checked){if(checked){if(!S.tids.includes(id))S.tids.push(id)}else S.tids=S.tids.filter(x=>x!==id);const el=document.getElementById('sc');if(el)el.textContent=S.tids.length}
+
+function refIM(){
+  const sQ=S.srch.is.toLowerCase(),tQ=S.srch.it.toLowerCase();
+  const fS=sQ?DB.staff.filter(s=>s.name.toLowerCase().includes(sQ)):DB.staff;
+  const fT=tQ?DB.tools.filter(t=>t.name.toLowerCase().includes(tQ)):DB.tools;
+  const sel=S.md.sid||'';
+  const ls=document.querySelectorAll('.cbl');
+  if(ls[0])ls[0].innerHTML=fS.map(s=>`<label class="cbi" style="${sel===s.id?'background:rgba(184,134,11,.1)':''}"><input type="radio" name="isr" value="${s.id}" ${sel===s.id?'checked':''} onchange="S.md.sid=this.value;refIM()"/><span>${esc(s.name)}</span><span class="badge bb tx2">${s.zone}</span></label>`).join('');
+  if(ls[1])ls[1].innerHTML=fT.map(t=>{const av=avQ(t.id);const dis=av<=0&&!S.tids.includes(t.id);return`<label class="cbi" style="${dis?'opacity:.45':''}"><input type="checkbox" ${S.tids.includes(t.id)?'checked':''} ${dis?'disabled':''} onchange="togT('${t.id}',this.checked)"/><span style="flex:1">${esc(t.name)}</span><span class="${av<=0?'qno':av<=2?'qlow':'qok'}" style="font-size:9px">${av<=0?'NONE':av}</span></label>`}).join('');
+  const c=document.getElementById('sc');if(c)c.textContent=S.tids.length;
+}
+
+function printS(id){S.modal='print';S.md={id,isLeave:false};render()}
+function printLeave(id){S.modal='print';S.md={id,isLeave:true};render()}
+function doPrint(){const c=document.getElementById('pp')?.innerHTML;if(!c)return;const w=window.open('','_blank');w.document.write(`<html><head><title>Tool List</title><style>body{margin:0;padding:0;background:#fff}@media print{body{margin:0}}</style></head><body>${c}</body></html>`);w.document.close();w.focus();w.print()}
+
+function shareSupLink(supId){
+  const s=gSup(supId);if(!s)return;
+  const u=DB.users.find(x=>x.name===s.name);
+  const link=window.location.href.split('?')[0];
+  let msg=`*EMIRATES PROPERTIES TMS*\n\nDear ${s.name},\n\nAccess the Tool Management System:\n🔗 ${link}\n\n`;
+  if(u)msg+=`👤 Username: *${u.username}*\n🔑 Password: [as provided by admin]\n\n`;
+  else msg+=`Please contact admin for login credentials.\n\n`;
+  msg+=`_Emirates Properties Facility Management LLC_`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function shareWA(staffId){
+  const s=DB.staff.find(x=>x.id===staffId);if(!s)return;
+  const sup=gSup(s.supervisorId),tools=stTools(s.id).map(a=>({a,tool:gT(a.toolId)}));
+  let msg=`*EMIRATES PROPERTIES FM LLC*\n*TOOL ISSUE LIST*\n\n👤 *Technician:* ${s.name}\n📍 *Zone:* ${s.zone}\n👔 *Supervisor:* ${sup?sup.name:'—'}\n📅 *Date:* ${new Date().toLocaleDateString('en-GB')}\n\n*TOOLS (${tools.length}):*\n`;
+  tools.forEach(({a,tool},i)=>{msg+=`${i+1}. ${tool?tool.name:'?'} — ${fd(a.issuedAt)}${a.issuedBy?' | By: '+a.issuedBy:''}\n`});
+  if(!tools.length)msg+=`No tools issued.\n`;
+  msg+=`\n_Emirates Properties Tool Management System_`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function doBackup(){DB.backups=(DB.backups||[]).slice(-29);const b={id:uid(),timestamp:Date.now()};DB.backups.push(b);localStorage.setItem('ep_bk_'+b.timestamp,JSON.stringify(DB));saveDB();showN('Backup created!')}
+
+function exExcel(sec){
+  const wb=XLSX.utils.book_new();
+  if(sec==='all'||sec==='tools')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.tools.map(t=>({Name:t.name,TotalQty:t.quantity||1,Available:avQ(t.id),Condition:t.condition||'Good',Notes:t.notes||''}))),'Tools');
+  if(sec==='all'||sec==='staff')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.staff.map(s=>{const sup=gSup(s.supervisorId);return{Name:s.name,Zone:s.zone,Supervisor:sup?sup.name:'—',ToolsIssued:stTools(s.id).length}})),'Technicians');
+  if(sec==='all'||sec==='supervisors')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.supervisors.map(s=>({Name:s.name,Zone:s.zone,Phone:s.phone,Technicians:supStaff(s.id).length,Tools:supTools(s.id).length}))),'Supervisors');
+  if(sec==='all'||sec==='assignments')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.assignments.filter(a=>a.status==='Issued').map(a=>{const st=gS(a.staffId),tool=gT(a.toolId);return{Technician:st?st.name:'?',Zone:st?st.zone:'?',Tool:tool?tool.name:'?',IssuedDate:fd(a.issuedAt),IssuedBy:a.issuedBy||'',Remarks:a.remarks||''}})),'Assignments');
+  if(sec==='all'||sec==='history')XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(DB.history.map(h=>{const st=gS(h.staffId),tool=gT(h.toolId);return{DateTime:fdt(h.timestamp),Technician:st?st.name:'?',Tool:tool?tool.name:'?',Action:h.action,IssuedBy:h.issuedBy||'',Condition:h.condition||'Good',Remarks:h.remarks||''}})),'History');
+  XLSX.writeFile(wb,'Emirates_TMS_'+sec+'_'+new Date().toISOString().slice(0,10)+'.xlsx');showN('Exported!');
+}
+
+function openM(modal,id){S.modal=modal;S.md=id?{id}:{};if(modal==='issue'){S.tids=[];S.srch.is='';S.srch.it='';S.md.sid='';}render()}
+function closeM(){S.modal=null;S.md={};render()}
+
+async function init(){
+  loadDB();
+  if(SURL&&SKEY){const ok=await testC();if(ok){CC=true;await pullAll();return}}
+  const last=localStorage.getItem('ep_lb');
+  if(!last||Date.now()-parseInt(last)>86400000){doBackup();localStorage.setItem('ep_lb',Date.now()+'')}
+  render();
+}
+init();
+</script>
+</body>
+</html>
